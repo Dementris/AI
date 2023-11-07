@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import random
 
+from agent import Car
+
+ALGORITHMS = ['kruskal', 'prim', 'boruvka']
+
 def generate_route(N):
     nodes = []
     pos = []
@@ -32,7 +36,7 @@ def remove_edges(G, edges_to_remove):
         return G
     edges = list(G.edges)
 
-    minimum_edges = nx.minimum_spanning_tree(G).edges
+    minimum_edges = nx.minimum_spanning_tree(G, algorithm=random.choice(ALGORITHMS)).edges
 
     non_minimum_edges = [e for e in edges if e not in minimum_edges]
 
@@ -48,9 +52,16 @@ if __name__ == '__main__':
     N = 5
     pos, edges = generate_route(N)
     G = nx.Graph()
+
     G.add_nodes_from(pos.keys())
-    G.add_edges_from(edges)
-    nx.draw(G,pos,with_labels=True)
+    G.add_edges_from(edges,color='gray')
+    edge_colors = [G[u][v]['color'] for u, v in G.edges()]
+    nx.draw(G,pos,with_labels=True, edge_color=edge_colors)
     plt.show()
-    nx.draw(remove_edges(G,10),pos,with_labels=True)
+    nx.draw(remove_edges(G,2),pos,with_labels=True, edge_color=edge_colors)
     plt.show()
+
+    start_node = (2, 2)
+    goal_node = (N - 1, N - 1)
+
+    agent = Car(G, start_node, goal_node)
