@@ -26,7 +26,7 @@ class Car():
             self.current_node = self.direction
             self.direction_update()
             return "action"
-        else:return "stop"
+        else:return "no_way"
 
     def update_color(self):
         self.graph[self.current_node][self.direction]['color'] = 'red'
@@ -40,13 +40,11 @@ class Car():
     def direction_to_right(self):
         self.direction = (self.current_node[0] + 1, self.current_node[1])
 
+    def direction_to_180(self):
+        self.direction = (self.current_node[0], self.current_node[1] - 1)
 
     def is_there_road(self, neighbors):
         return self.direction in neighbors
-
-    def chose_next_action(self):
-        pass
-
 
     def navigate(self):
         while not self.is_finish():

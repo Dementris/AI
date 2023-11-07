@@ -61,7 +61,7 @@ if __name__ == '__main__':
     nx.draw(remove_edges(G,2),pos,with_labels=True, edge_color=edge_colors)
     plt.show()
 
-    start_node = (2, 2)
-    goal_node = (N - 1, N - 1)
+    start_node = (0, 0)
+    finish_node = (N - 1, N - 1)
 
-    agent = Car(G, start_node, goal_node)
+    agent = Car(G, start_node, finish_node)
