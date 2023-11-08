@@ -5,7 +5,7 @@ import random
 from agent import Car
 
 ALGORITHMS = ['kruskal', 'prim', 'boruvka']
-
+NODE_SIZE = 650
 def generate_route(N):
     nodes = []
     pos = []
@@ -49,29 +49,48 @@ def remove_edges(G, edges_to_remove):
     return G
 
 if __name__ == '__main__':
+
+
+
     N = 5
     pos, edges = generate_route(N)
     G = nx.Graph()
-
     G.add_nodes_from(pos.keys())
     G.add_edges_from(edges,color='gray')
     edge_colors = [G[u][v]['color'] for u, v in G.edges()]
-    nx.draw(G,pos,with_labels=True, edge_color=edge_colors)
+    # First graph generation
+    nx.draw(G,pos,with_labels=True,
+            edge_color=edge_colors,
+            node_size=NODE_SIZE)
     plt.show()
     # Removing edges
-    nx.draw(remove_edges(G,10),pos,with_labels=True, edge_color=edge_colors)
+    nx.draw(remove_edges(G,10),pos,
+            with_labels=True,
+            edge_color=edge_colors,
+            node_size=NODE_SIZE)
     plt.show()
 
     start_node = (0, 0)
     finish_node = (4, 4)
-
+    # Agent
     agent = Car(G, start_node, finish_node)
     agent.navigate()
-
     edge_colors = [G[u][v]['color'] for u, v in G.edges()]
-    print(edge_colors)
-    nx.draw(G, pos, with_labels=True, edge_color=edge_colors)
+    node_colors = {node: '#1F78B4' for node in G.nodes}
+    node_colors[start_node] = "green"
+    node_colors[finish_node] = "red"
+    # Drawing graph with path
+    nx.draw(G, pos, with_labels=True,
+            edge_color=edge_colors,
+            node_size=NODE_SIZE,
+            node_color = [node_colors[i] for i in G.nodes])
+    nx.draw_networkx_edges(G, pos,
+                           node_size=NODE_SIZE,
+                           arrows=True,
+                           edgelist=agent.direction_edges_list,
+                           edge_color='red',
+                           arrowstyle='->',
+                           arrowsize=15)
     plt.show()
-    print(agent.path)
-    print(agent.full_path)
+    print(f"Full car path: {agent.full_path.__str__().replace('), (',') -> (',)} ")
 
