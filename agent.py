@@ -12,6 +12,7 @@ class Car():
         self.path = []
         self.direction_update()
         self.current_actions = []
+        self.full_path = []
 
     def get_neighbors(self):
         return list(self.graph.neighbors(self.current_node))
@@ -27,8 +28,6 @@ class Car():
             return "action"
         else:return "no_way"
 
-    def update_color(self):
-        self.graph[self.current_node][self.direction]['color'] = 'red'
 
     def direction_update(self):
         self.direction = (self.current_node[0], self.current_node[1] + 1)
@@ -54,7 +53,7 @@ class Car():
             self.direction_to_180()
         else:self.direction_update()
 
-    def choose_action(self):
+    def choose_direction_and_action(self):
         neighbors = self.get_neighbors()
         unvisited_neighbors = [n for n in neighbors if n not in self.visited_neighbors]
         if unvisited_neighbors:
@@ -62,6 +61,7 @@ class Car():
             self.set_direction(next_node)
             self.visited_neighbors.add(self.current_node)
             self.path.append(self.current_node)
+            self.full_path.append(self.current_node)
         else:
             if not self.path:
                 return
@@ -73,8 +73,14 @@ class Car():
 
     def navigate(self):
         while not self.is_finish():
-            self.choose_action()
-            print(self.path)
+            self.choose_direction_and_action()
         self.path.append(self.finish)
+        self.full_path.append(self.finish)
+        for i in range(len(self.path)-1):
+            self.graph[self.path[i]][self.path[i+1]]['color'] = 'red'
+        for i in range(len(self.full_path)-1):
+            if self.full_path[i] == self.full_path[i+1]:
+                self.graph.add_edge(self.full_path[i],self.full_path[i+1])
+            self.graph[self.full_path[i]][self.full_path[i+1]]['color'] = 'green'
 
 
