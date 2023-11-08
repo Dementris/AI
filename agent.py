@@ -8,7 +8,7 @@ class Car():
         self.current_node = start
         self.direction = None
         self.finish = finish
-        self.visited_map = set(self.current_node)
+        self.visited_neighbors = set(self.current_node)
         self.path = []
         self.direction_update()
         self.current_actions = []
@@ -22,7 +22,6 @@ class Car():
     def action(self):
         neighbors = self.get_neighbors()
         if self.is_there_road(neighbors):
-            self.update_color()
             self.current_node = self.direction
             self.direction_update()
             return "action"
@@ -46,7 +45,36 @@ class Car():
     def is_there_road(self, neighbors):
         return self.direction in neighbors
 
+    def set_direction(self,next_node):
+        if next_node == (self.current_node[0] - 1, self.current_node[1]):
+            self.direction_to_left()
+        elif next_node == (self.current_node[0] + 1, self.current_node[1]):
+            self.direction_to_right()
+        elif next_node == (self.current_node[0], self.current_node[1] - 1):
+            self.direction_to_180()
+        else:self.direction_update()
+
+    def choose_action(self):
+        neighbors = self.get_neighbors()
+        unvisited_neighbors = [n for n in neighbors if n not in self.visited_neighbors]
+        if unvisited_neighbors:
+            next_node = random.choice(unvisited_neighbors)
+            self.set_direction(next_node)
+            self.visited_neighbors.add(self.current_node)
+            self.path.append(self.current_node)
+        else:
+            if not self.path:
+                return
+            next_node = self.path.pop()
+            self.set_direction(next_node)
+
+        self.action()
+        self.visited_neighbors.add(self.current_node)
+
     def navigate(self):
         while not self.is_finish():
-            pass
+            self.choose_action()
+            print(self.path)
+        self.path.append(self.finish)
+
 

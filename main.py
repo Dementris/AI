@@ -65,3 +65,9 @@ if __name__ == '__main__':
     finish_node = (N - 1, N - 1)
 
     agent = Car(G, start_node, finish_node)
+    agent.navigate()
+
+    edge_colors = [G[u][v]['color'] for u, v in G.edges()]
+    nx.draw(remove_edges(G, 2), pos, with_labels=True, edge_color=edge_colors)
+    plt.show()
+
