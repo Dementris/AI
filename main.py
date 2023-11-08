@@ -7,6 +7,11 @@ from agent import Car
 ALGORITHMS = ['kruskal', 'prim', 'boruvka']
 NODE_SIZE = 650
 def generate_route(N):
+    """
+    Generates route NxN.
+    :param N:
+    :return:
+    """
     nodes = []
     pos = []
     for x in range(N):
@@ -29,7 +34,13 @@ def generate_route(N):
     pos = {k: v for k, v in zip(nodes,pos)}
     return pos, edges
 
-def remove_edges(G, edges_to_remove):
+def remove_edges(G: nx.Graph, edges_to_remove: int):
+    """
+    Remove edges from route.
+    :param G: nx.Graph
+    :param edges_to_remove: int
+    :return: nx.Graph
+    """
     if edges_to_remove >= len(G.edges()):
         print("The number of edges to remove is greater "
               "than or equal to the number of edges in the graph")
@@ -49,9 +60,6 @@ def remove_edges(G, edges_to_remove):
     return G
 
 if __name__ == '__main__':
-
-
-
     N = 5
     pos, edges = generate_route(N)
     G = nx.Graph()
@@ -75,6 +83,7 @@ if __name__ == '__main__':
     # Agent
     agent = Car(G, start_node, finish_node)
     agent.navigate()
+
     edge_colors = [G[u][v]['color'] for u, v in G.edges()]
     node_colors = {node: '#1F78B4' for node in G.nodes}
     node_colors[start_node] = "green"
