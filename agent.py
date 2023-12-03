@@ -36,7 +36,7 @@ class Car():
     def get_neighbors(self) -> list:
         """
         Neighbors of current node.
-        :return list
+        :return: list
         """
         return list(self.graph.neighbors(self.current_node))
 
@@ -52,7 +52,7 @@ class Car():
         Move forward to destination.
         :return: str
         """
-        neighbors = self.get_neighbors()
+        neighbors, _ = self.ask(self.current_node)
         if self.is_there_road(neighbors):
             self.current_node = self.direction
             self.direction_update()
@@ -110,12 +110,12 @@ class Car():
         Method that randomly selects the path to the next neighbouring node.
         Generates a map of the travelled path.
         """
-        neighbors = self.get_neighbors()
-        unvisited_neighbors = [n for n in neighbors if n not in self.visited_neighbors]
+        self.tell()
+        neighbors, visited_nodes = self.ask(self.current_node)
+        unvisited_neighbors = [n for n in neighbors if n not in visited_nodes]
         if unvisited_neighbors:
             next_node = random.choice(unvisited_neighbors)
             self.set_direction(next_node)
-            self.visited_neighbors.add(self.current_node)
             self.path.append(self.current_node)
         else:
             if not self.path:
@@ -124,7 +124,6 @@ class Car():
             self.set_direction(next_node)
 
         self.action()
-        self.visited_neighbors.add(self.current_node)
 
     def navigate(self):
         """

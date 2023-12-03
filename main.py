@@ -103,4 +103,4 @@ if __name__ == '__main__':
                            arrowsize=15)
     plt.show()
     print(f"Full car path: {agent.full_path.__str__().replace('), (',') -> (',)} ")
-
+    print(agent.knowledge_base)
