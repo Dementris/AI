@@ -4,7 +4,6 @@ import random
 
 from agent import Car
 
-ALGORITHMS = ['kruskal', 'prim', 'boruvka']
 NODE_SIZE = 650
 def generate_route(N):
     """
@@ -47,7 +46,7 @@ def remove_edges(G: nx.Graph, edges_to_remove: int):
         return G
     edges = list(G.edges)
 
-    minimum_edges = nx.minimum_spanning_tree(G, algorithm=random.choice(ALGORITHMS)).edges
+    minimum_edges = nx.minimum_spanning_tree(G,weight="weight").edges
 
     non_minimum_edges = [e for e in edges if e not in minimum_edges]
 
@@ -64,7 +63,9 @@ if __name__ == '__main__':
     pos, edges = generate_route(N)
     G = nx.Graph()
     G.add_nodes_from(pos.keys())
-    G.add_edges_from(edges,color='gray')
+    # G.add_edges_from(edges,color='gray')
+    for i in edges:
+        G.add_edge(i[0], i[1],color="grey",weight=random.random())
     edge_colors = [G[u][v]['color'] for u, v in G.edges()]
     # First graph generation
     nx.draw(G,pos,with_labels=True,
@@ -72,7 +73,7 @@ if __name__ == '__main__':
             node_size=NODE_SIZE)
     plt.show()
     # Removing edges
-    nx.draw(remove_edges(G,10),pos,
+    nx.draw(remove_edges(G,15),pos,
             with_labels=True,
             edge_color=edge_colors,
             node_size=NODE_SIZE)

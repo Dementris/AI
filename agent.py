@@ -14,6 +14,24 @@ class Car():
         self.current_actions = []
         self.full_path = []
         self.direction_edges_list = []
+        self.knowledge_base = {"routes": {},
+                               "visited_nodes": set(self.current_node)}
+
+    def ask(self,current_node_information):
+        """
+        Ask knowledge base for information.
+        """
+        return self.knowledge_base["routes"][current_node_information], self.knowledge_base["visited_nodes"]
+
+
+    def tell(self):
+        """
+        Add information to knowledge base.
+        """
+        neighbors = self.get_neighbors()
+        self.knowledge_base["routes"][self.current_node] = neighbors
+        self.knowledge_base["visited_nodes"].add(self.current_node)
+
 
     def get_neighbors(self) -> list:
         """
@@ -117,6 +135,3 @@ class Car():
             self.choose_direction_and_action()
         for i in range(len(self.full_path)-1):
             self.direction_edges_list.append((self.full_path[i],self.full_path[i+1]))
-
-
-
