@@ -56,6 +56,12 @@ def remove_edges(G: nx.Graph, edges_to_remove: int):
             G.remove_edges_from(remove)
         except(ValueError):
             print("Too many edges to remove")
+
+    # Add signs to the left side of remaining edges
+    for edge in G.edges():
+        sign = random.randint(1, 10)
+        G.edges[edge]['sign'] = sign
+
     return G
 
 if __name__ == '__main__':
@@ -72,11 +78,17 @@ if __name__ == '__main__':
             edge_color=edge_colors,
             node_size=NODE_SIZE)
     plt.show()
-    # Removing edges
-    nx.draw(remove_edges(G,15),pos,
+    # Removing edges and adding signs
+    updated_G = remove_edges(G, 10)
+
+    # Visualizing the graph with signs
+    edge_labels = {(u, v): str(updated_G[u][v]['sign']) for u, v in updated_G.edges()}
+    nx.draw(updated_G, pos,
             with_labels=True,
-            edge_color=edge_colors,
+            edge_color=[updated_G[u][v]['color'] for u, v in updated_G.edges()],
             node_size=NODE_SIZE)
+    nx.draw_networkx_edge_labels(updated_G, pos, edge_labels=edge_labels, font_color='black', rotate=False, bbox=dict(facecolor='white', edgecolor='red', boxstyle='round,pad=0.6'))
+
     plt.show()
 
     start_node = (0, 0)
@@ -89,18 +101,23 @@ if __name__ == '__main__':
     node_colors = {node: '#1F78B4' for node in G.nodes}
     node_colors[start_node] = "green"
     node_colors[finish_node] = "red"
+
     # Drawing graph with path
     nx.draw(G, pos, with_labels=True,
             edge_color=edge_colors,
             node_size=NODE_SIZE,
             node_color = [node_colors[i] for i in G.nodes])
     nx.draw_networkx_edges(G, pos,
+                           width=3.0,
                            node_size=NODE_SIZE,
                            arrows=True,
                            edgelist=agent.direction_edges_list,
-                           edge_color='red',
+                           edge_color='green',
                            arrowstyle='->',
                            arrowsize=15)
+    nx.draw_networkx_edge_labels(updated_G, pos, edge_labels=edge_labels, font_color='black', rotate=False,
+                                 bbox=dict(facecolor='white', edgecolor='red', boxstyle='round,pad=0.6'))
+
     plt.show()
     print(f"Full car path: {agent.full_path.__str__().replace('), (',') -> (',)} ")
     print(agent.knowledge_base)
