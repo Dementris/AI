@@ -122,3 +122,4 @@ if __name__ == '__main__':
     plt.show()
     print(f"Full car path: {agent.full_path.__str__().replace('), (',') -> (',)} ")
     print(agent.knowledge_base)
+    print(f"Car speed limitations on edges: {agent.speed}")

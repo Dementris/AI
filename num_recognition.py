@@ -6,25 +6,18 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
-# Define transformations
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-# Load MNIST dataset
 train_dataset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
 test_dataset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=transform)
 
-# DataLoaders
-train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False)
-
-# Define transformations
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,))
-])
+train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=4)
+test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False, num_workers=4)
 
 
 class NumCNN(nn.Module):
@@ -47,10 +40,14 @@ class NumCNN(nn.Module):
 
 
 if __name__ == '__main__':
-    model = NumCNN()
-    model.load_state_dict(torch.load('model.pth'))
+    model = NumCNN().to(device)
+
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.SGD(model.parameters(), lr=0.01,
+                      momentum=0.5)
+    model.load_state_dict(torch.load('model.pth'))
+    optimizer.load_state_dict(torch.load('optimizer.pth'))
+
     num_epochs = 10
     losses = []
     accuracies = []
@@ -59,9 +56,8 @@ if __name__ == '__main__':
         correct = 0
         total = 0
         for i, data in enumerate(train_loader, 0):
-            inputs, labels = data
+            inputs, labels = data[0].to(device), data[1].to(device)
             optimizer.zero_grad()
-
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
@@ -72,25 +68,28 @@ if __name__ == '__main__':
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-
-            if i % 300 == 299:  # Print every 300 mini-batches
-                losses.append(running_loss / 300)
-                accuracy = 100 * correct / total
-                accuracies.append(accuracy)
+            losses.append(running_loss)
+            accuracies.append(correct / total)
+            if i % 300 == 299:
                 print(
-                    f"Epoch [{epoch + 1}/{num_epochs}] - Batch [{i + 1}/{len(train_loader)}] - Loss: {running_loss / 300}")
+                    f"Epoch:[{epoch + 1}/{num_epochs}] --- Batch:[{i + 1}/{len(train_loader)}] --- Loss:[{running_loss / 300}]")
                 running_loss = 0.0
 
     torch.save(model.state_dict(), 'model.pth')
+    torch.save(optimizer.state_dict(), 'optimizer.pth')
 
-    plt.plot(losses)
+    plt.figure(figsize=(10, 5))
+    plt.plot(losses, label='Training Loss')
+    plt.title('Training Loss')
     plt.xlabel('Iterations')
     plt.ylabel('Loss')
-    plt.title('Training Loss')
+    plt.legend()
     plt.show()
 
-    plt.plot(accuracies)
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy (%)')
+    plt.figure(figsize=(10, 5))
+    plt.plot(accuracies, label='Training Accuracy')
     plt.title('Training Accuracy')
+    plt.xlabel('Iterations')
+    plt.ylabel('Accuracy')
+    plt.legend()
     plt.show()

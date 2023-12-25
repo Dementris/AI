@@ -1,7 +1,10 @@
 import networkx as nx
 import random
 import cv2
+import torch
 import matplotlib.pyplot as plt
+from torchvision import transforms
+from num_recognition import NumCNN
 
 class Car():
     def __init__(self, graph: nx.Graph, start, finish):
@@ -17,7 +20,11 @@ class Car():
         self.direction_edges_list = []
         self.knowledge_base = {"routes": {},
                                "visited_nodes": set(self.current_node)}
-        self.speed = 0
+        self.speed = []
+        self.model = NumCNN()
+        self.model.load_state_dict(torch.load('model.pth'))
+        self.model.eval()
+        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
     def ask(self,current_node_information):
         """
@@ -124,10 +131,17 @@ class Car():
                 return
             next_node = self.path.pop()
             self.set_direction(next_node)
-        # TODO speed and image recognition
+        # Speed limit sign recognition
         image_x1, image_y1 = self.node_to_image_position(self.direction[0],self.direction[1])
         image_x2, image_y2 = self.node_to_image_position(self.current_node[0], self.current_node[1])
-        self.extract_node_image(image_x1,image_y1,image_x2,image_y2)
+        sign = self.extract_node_image(image_x1,image_y1,image_x2,image_y2)
+        sign = self.transform(sign)
+        with torch.no_grad():
+            output = self.model(sign.unsqueeze(0))
+            _, predicted = torch.max(output, 1)
+            predicted_class = predicted.item()
+        print(f"Predicted speed for edge {self.current_node},{self.direction} = {predicted_class}0 km/h")
+        self.speed.append({f"Edge ({self.current_node},{self.direction})": f"Speed:{predicted_class}0 km/h"})
         self.action()
 
     def node_to_image_position(self, node_x, node_y):
@@ -158,7 +172,7 @@ class Car():
         edge_image = road_map[min(top_left_y, top_left_y1):max(bottom_right_y, bottom_right_y1),
                      min(top_left_x, top_left_x1):max(bottom_right_x, bottom_right_x1)]
 
-        new_width, new_height = 29, 29
+        new_width, new_height = 28, 28
 
         height, width = edge_image.shape[:2]
 
@@ -172,9 +186,10 @@ class Car():
         cropped_image = edge_image[start_y:end_y, start_x:end_x]
 
         resized_image = cv2.resize(cropped_image, (new_width, new_height), interpolation=cv2.INTER_AREA)
-        cv2.imwrite(f'img/node_{node_center_x1}{node_center_y1}.png', resized_image)
+        inverted_image = 255 - resized_image
+        img_gray = cv2.cvtColor(inverted_image, cv2.COLOR_BGR2GRAY)
 
-        return resized_image
+        return img_gray
 
     def navigate(self):
         """
