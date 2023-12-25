@@ -57,12 +57,13 @@ def remove_edges(G: nx.Graph, edges_to_remove: int):
         except(ValueError):
             print("Too many edges to remove")
 
-    # Add signs to the left side of remaining edges
+    # Add signs
     for edge in G.edges():
-        sign = random.randint(1, 10)
+        sign = random.randint(2, 9)
         G.edges[edge]['sign'] = sign
 
     return G
+
 
 if __name__ == '__main__':
     N = 5
@@ -87,8 +88,8 @@ if __name__ == '__main__':
             with_labels=True,
             edge_color=[updated_G[u][v]['color'] for u, v in updated_G.edges()],
             node_size=NODE_SIZE)
-    nx.draw_networkx_edge_labels(updated_G, pos, edge_labels=edge_labels, font_color='black', rotate=False, bbox=dict(facecolor='white', edgecolor='red', boxstyle='round,pad=0.6'))
-
+    nx.draw_networkx_edge_labels(updated_G, pos, edge_labels=edge_labels, font_color='black',font_size=15, rotate=False, bbox=dict(facecolor='white', edgecolor='red', boxstyle='round,pad=0.6'))
+    plt.savefig('road_map.png')
     plt.show()
 
     start_node = (0, 0)
@@ -115,7 +116,7 @@ if __name__ == '__main__':
                            edge_color='green',
                            arrowstyle='->',
                            arrowsize=15)
-    nx.draw_networkx_edge_labels(updated_G, pos, edge_labels=edge_labels, font_color='black', rotate=False,
+    nx.draw_networkx_edge_labels(updated_G, pos, edge_labels=edge_labels, font_color='black', font_size=15, rotate=False,
                                  bbox=dict(facecolor='white', edgecolor='red', boxstyle='round,pad=0.6'))
 
     plt.show()
