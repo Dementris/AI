@@ -85,7 +85,7 @@ if __name__ == '__main__':
     plt.ylabel('Loss')
     plt.legend()
     plt.show()
-
+    print(losses)
     plt.figure(figsize=(10, 5))
     plt.plot(accuracies, label='Training Accuracy')
     plt.title('Training Accuracy')

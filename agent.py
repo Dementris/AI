@@ -134,7 +134,7 @@ class Car():
         # Speed limit sign recognition
         image_x1, image_y1 = self.node_to_image_position(self.direction[0],self.direction[1])
         image_x2, image_y2 = self.node_to_image_position(self.current_node[0], self.current_node[1])
-        sign = self.extract_node_image(image_x1,image_y1,image_x2,image_y2)
+        sign = self.extract_edge_image(image_x1, image_y1, image_x2, image_y2)
         sign = self.transform(sign)
         with torch.no_grad():
             output = self.model(sign.unsqueeze(0))
@@ -156,7 +156,7 @@ class Car():
         image_y = start_image_y - node_y * vertical_distance
         return image_x, image_y
 
-    def extract_node_image(self, node_center_x1, node_center_y1, node_center_x2, node_center_y2, node_size=39, image_path='road_map.png'):
+    def extract_edge_image(self, node_center_x1, node_center_y1, node_center_x2, node_center_y2, node_size=39, image_path='road_map.png'):
         road_map = cv2.imread(image_path)
 
         top_left_x = int(node_center_x1 - node_size / 2)
